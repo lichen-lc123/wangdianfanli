@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>政策导入 - 网点返利</title>
+  <style>
+    :root {
+      --brand-1:#fff7ed; --brand-2:#ffedd5; --brand-3:#fed7aa; --brand-4:#fdba74;
+      --brand-5:#f97316; --brand-6:#ea580c; --brand-7:#c2410c;
+      --text-1:#292524; --text-2:#44403c; --text-3:#78716c; --text-4:#a8a29e;
+      --fill-1:#fff; --fill-2:#fafaf9; --fill-3:#f5f5f4; --fill-4:#e7e5e4;
+      --line-1:#f0efed; --line-2:#e7e5e4; --line-3:#d6d3d1;
+      --danger:#dc2626; --danger-light:#fef2f2; --warning:#d97706; --warning-light:#fffbeb;
+      --success:#a16207; --success-light:#fefce8;
+      --shadow:0 4px 16px rgba(68,64,60,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;color:var(--text-1);background:var(--fill-3);font-size:14px}
+    button,input,select,textarea{font:inherit;color:inherit}
+    button{cursor:pointer}
+    button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--brand-4);outline-offset:1px}
+    .app{min-height:100%;display:grid;grid-template-columns:200px minmax(0,1fr);grid-template-rows:54px minmax(0,1fr)}
+    .topbar{grid-column:1/3;display:flex;align-items:center;background:var(--fill-1);border-bottom:1px solid var(--line-2);z-index:20}
+    .brand{width:200px;height:54px;display:flex;align-items:center;padding:0 18px;border-right:1px solid var(--line-2);font-weight:600;gap:10px}
+    .brand-mark{width:28px;height:28px;border-radius:7px;background:var(--brand-6);display:grid;place-items:center;color:#fff;font-size:16px;font-weight:700}
+    .top-actions{flex:1;display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+    .crumb{color:var(--text-3);font-size:13px}.crumb strong{color:var(--text-1);font-weight:500}
+    .user{display:flex;align-items:center;gap:10px;color:var(--text-2)}
+    .icon-btn{border:0;background:transparent;width:32px;height:32px;border-radius:4px;color:var(--text-3)}
+    .icon-btn:hover{background:var(--brand-1);color:var(--brand-6)}
+    .avatar{width:28px;height:28px;border-radius:50%;background:var(--brand-2);color:var(--brand-7);display:grid;place-items:center;font-weight:600}
+    .sidebar{grid-row:2;background:var(--fill-1);border-right:1px solid var(--line-2);padding:12px 8px;overflow:auto}
+    .menu-title{height:28px;padding:6px 12px;color:var(--text-4);font-size:12px}
+    .menu-item{height:42px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:4px;color:var(--text-2);margin:2px 0;text-decoration:none}
+    .menu-item:hover{background:var(--fill-3)}
+    .menu-item.active{background:var(--brand-1);color:var(--brand-7);font-weight:500;border-left:3px solid var(--brand-6);padding-left:9px}
+    .menu-icon{width:18px;text-align:center;color:inherit}
+    .main{grid-column:2;grid-row:2;min-width:0;overflow:auto;padding:20px}
+    .page-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+    .page-head h1{font-size:20px;line-height:28px;margin:0 0 4px;font-weight:600}
+    .page-head p{margin:0;color:var(--text-3);font-size:13px}
+    .view-switch{display:flex;align-items:center;gap:9px;color:var(--text-2);font-size:13px}
+    .tree-control-bar{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(255,255,255,.72);border-bottom:1px solid var(--line-2);backdrop-filter:blur(18px) saturate(150%)}
+    .tree-control-bar .view-switch{font-weight:500}
+    .switch{width:42px;height:22px;border:0;border-radius:12px;background:var(--line-3);padding:2px;position:relative;transition:.2s}
+    .switch:after{content:"";position:absolute;left:2px;top:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(68,64,60,.25);transition:.2s}
+    .switch.on{background:var(--brand-6)}.switch.on:after{left:22px}
+    .status-switch-field{min-height:34px;display:flex;align-items:center;gap:10px}.status-switch-field .switch-label{font-size:13px;color:var(--text-2)}
+    .tabs{display:flex;border-bottom:1px solid var(--line-2);background:var(--fill-1);padding:0 16px}
+    .tab{height:42px;padding:0 16px;border:0;background:transparent;color:var(--text-3);position:relative}
+    .tab.active{color:var(--brand-6);font-weight:500}
+    .tab.active:after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:var(--brand-6)}
+    .workspace{background:var(--fill-1);border:1px solid var(--line-2);border-radius:6px;box-shadow:0 1px 2px rgba(68,64,60,.03)}
+    .filter{padding:16px;border-bottom:1px solid var(--line-1)}
+    .filter-grid{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:12px 16px}
+    .field label,.compact-field label{display:block;color:var(--text-2);font-size:13px;margin-bottom:6px}
+    .control{width:100%;height:32px;border:1px solid var(--line-3);border-radius:4px;background:#fff;padding:0 10px;transition:.15s}
+    .control:hover{border-color:var(--brand-4)}
+    .control:focus{border-color:var(--brand-5);box-shadow:0 0 0 2px var(--brand-1);outline:0}
+    textarea.control{height:64px;padding:8px 10px;resize:vertical}
+    .filter-actions{display:flex;align-items:flex-end;justify-content:flex-end;gap:8px}
+    .btn{height:32px;border:1px solid var(--line-3);border-radius:4px;background:#fff;padding:0 14px;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+    .btn:hover{border-color:var(--brand-4);color:var(--brand-6);background:var(--brand-1)}
+    .btn.primary{background:var(--brand-6);border-color:var(--brand-6);color:#fff}
+    .btn.primary:hover{background:var(--brand-5);border-color:var(--brand-5);color:#fff}
+    .btn.text{border-color:transparent;background:transparent;color:var(--brand-6);padding:0 6px}
+    .btn.text:hover{background:var(--brand-1)}
+    .btn.small{height:28px;padding:0 10px;font-size:13px}
+    .btn:disabled{cursor:not-allowed;background:var(--fill-3);border-color:var(--line-2);color:var(--text-4)}
+    .toolbar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+    .toolbar-left,.toolbar-right{display:flex;align-items:center;gap:8px}
+    .muted{color:var(--text-3);font-size:13px}
+    .table-wrap{overflow:auto;border-top:1px solid var(--line-1)}
+    table{width:100%;border-collapse:separate;border-spacing:0;min-width:1180px}
+    th,td{height:44px;padding:0 12px;border-bottom:1px solid var(--line-1);text-align:left;white-space:nowrap}
+    th{height:40px;background:var(--fill-2);color:var(--text-2);font-weight:500;position:sticky;top:0;z-index:1}
+    .header-stack{display:flex;flex-direction:column;justify-content:center;line-height:1.2}.header-unit{font-size:10px;color:var(--text-4);font-weight:400;margin-bottom:3px}
+    .field-unit{display:block;color:var(--text-4);font-size:11px;margin-bottom:4px}
+    tbody tr:hover td{background:#fffaf5}
+    td.number{text-align:right;font-variant-numeric:tabular-nums}
+    .link{color:var(--brand-6);border:0;background:transparent;padding:0}
+    .tag{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:3px;font-size:12px;background:var(--fill-3);color:var(--text-2)}
+    .tag.orange{background:var(--brand-1);color:var(--brand-7)}
+    .tag.gold{background:var(--success-light);color:var(--success)}
+    .tag.red{background:var(--danger-light);color:var(--danger)}
+    .pager{height:56px;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:0 16px;color:var(--text-3);font-size:13px}
+    .page-btn{width:30px;height:30px;border:1px solid var(--line-2);background:#fff;border-radius:4px}
+    .page-btn.active{border-color:var(--brand-6);color:var(--brand-6);background:var(--brand-1)}
+    .checkbox{width:16px;height:16px;accent-color:var(--brand-6)}
+    .empty{padding:48px;text-align:center;color:var(--text-3)}
+    .overlay{position:fixed;inset:0;background:rgba(41,37,36,.38);z-index:40;opacity:0;pointer-events:none;transition:.2s}
+    .overlay.show{opacity:1;pointer-events:auto}
+    .drawer{position:fixed;right:0;top:0;bottom:0;width:66.666vw;background:#fff;z-index:50;transform:translateX(100%);transition:.24s;box-shadow:-10px 0 30px rgba(41,37,36,.12);display:flex;flex-direction:column}
+    .drawer.show{transform:translateX(0)}
+    .drawer-head,.modal-head{height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid var(--line-2);flex:none}
+    .drawer-head h2,.modal-head h2{font-size:17px;margin:0;font-weight:600}
+    .drawer-body{padding:20px;overflow:auto;flex:1}
+    .drawer-foot,.modal-foot{height:58px;border-top:1px solid var(--line-2);display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:0 20px;flex:none;background:#fff}
+    .section{margin-bottom:22px}
+    .section-title{display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:12px;color:var(--text-1)}
+    .section-title:before{content:"";width:3px;height:15px;background:var(--brand-6);border-radius:2px}
+    .form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 16px}
+    .hint{margin-top:5px;font-size:12px;color:var(--text-4)}
+    .notice{padding:10px 12px;background:var(--brand-1);border:1px solid var(--brand-3);color:var(--brand-7);border-radius:4px;font-size:13px;margin-bottom:14px}
+    .batch-bar{display:flex;align-items:flex-end;gap:12px;padding:12px;background:var(--fill-2);border:1px solid var(--line-2);border-radius:4px;margin-bottom:12px;flex-wrap:wrap}
+    .batch-group{display:flex;align-items:flex-end;gap:6px}.batch-group .control{width:150px}
+    .price-rule-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px}
+    .price-card{border:1px solid var(--line-2);background:var(--fill-2);padding:12px;border-radius:4px}
+    .price-card-title{font-weight:500;margin-bottom:8px;color:var(--text-2)}
+    .price-card-row{display:flex;align-items:center;gap:6px}.price-card-row .control{min-width:0;flex:1}
+    .config-table{border:1px solid var(--line-2);border-radius:4px;overflow:auto;max-height:360px}
+    .config-table table{min-width:780px}
+    .config-table input,.config-table select{height:28px;border:1px solid var(--line-3);border-radius:3px;padding:0 7px;background:#fff}
+    .config-table input{width:110px;text-align:right}
+    .config-table select{width:100px}
+    .changed td{background:var(--brand-1)!important}
+    .modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-48%) scale(.98);width:min(780px,92vw);max-height:86vh;background:#fff;z-index:60;border-radius:6px;box-shadow:0 18px 50px rgba(41,37,36,.22);opacity:0;pointer-events:none;transition:.18s;display:flex;flex-direction:column}
+    .modal.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) scale(1)}
+    .modal-body{padding:20px;overflow:auto}
+    .upload-zone{border:1px dashed var(--brand-4);background:var(--brand-1);border-radius:4px;padding:24px;text-align:center;color:var(--text-2)}
+    .upload-icon{font-size:30px;color:var(--brand-6);margin-bottom:8px}
+    .upload-zone p{margin:4px 0}.upload-zone .small-note{color:var(--text-3);font-size:12px}
+    .file-row{margin-top:12px;border:1px solid var(--line-2);background:#fff;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;border-radius:4px}
+    .summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:16px 0}
+    .summary{border:1px solid var(--line-2);background:var(--fill-2);padding:12px;border-radius:4px}
+    .summary strong{display:block;font-size:20px;margin-top:4px;font-variant-numeric:tabular-nums}
+    .summary.warn strong{color:var(--warning)}.summary.bad strong{color:var(--danger)}.summary.good strong{color:var(--success)}
+    .steps{display:flex;align-items:center;margin-bottom:18px}
+    .step{display:flex;align-items:center;color:var(--text-4);font-size:13px}.step.active{color:var(--brand-6)}
+    .step-dot{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--fill-3);margin-right:7px}.step.active .step-dot{background:var(--brand-6);color:#fff}
+    .step-line{height:1px;background:var(--line-2);flex:1;margin:0 10px}
+    .confirm-modal{width:min(460px,90vw)}
+    .confirm-text{line-height:1.7;color:var(--text-2)}
+    .toast{position:fixed;top:70px;left:50%;transform:translate(-50%,-16px);padding:10px 16px;background:var(--text-1);color:#fff;border-radius:4px;box-shadow:var(--shadow);z-index:100;opacity:0;pointer-events:none;transition:.2s}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    .hidden{display:none!important}
+    .date-filter{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:16px;border-bottom:1px solid var(--line-1)}
+    .date-filter .field{width:220px}
+    .date-list{padding:6px 16px 16px}
+    .date-row{width:100%;min-height:58px;border:0;border-bottom:1px solid var(--line-1);background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 12px;text-align:left}
+    .date-row:hover{background:var(--brand-1)}
+    .date-row .date-value{font-size:15px;font-weight:500;color:var(--text-1);font-variant-numeric:tabular-nums}
+    .date-row .chevron{font-size:18px;color:var(--text-4)}
+    .detail-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border-bottom:1px solid var(--line-2)}
+    .detail-title{display:flex;align-items:center;gap:12px}.detail-title h2{font-size:17px;margin:0}.detail-title .muted{margin-top:3px}
+    .detail-actions{display:flex;gap:8px}
+    .detail-layout{display:grid;grid-template-columns:156px minmax(0,1fr);min-height:640px;transition:grid-template-columns .28s cubic-bezier(.22,1,.36,1);position:relative}
+    .detail-layout.month-panel-collapsed{grid-template-columns:0 minmax(0,1fr)}
+    .detail-layout.month-panel-collapsed .scope-tree{width:0;overflow:hidden;border:0}
+    .detail-layout.month-panel-collapsed .detail-content{padding-left:46px}
+    .month-collapse-toggle{position:absolute;left:138px;top:14px;z-index:8;width:28px;height:36px;border:1px solid rgba(253,186,116,.58);border-radius:10px;background:rgba(255,255,255,.68);color:var(--brand-7);box-shadow:0 6px 18px rgba(120,53,15,.13),inset 0 1px 0 rgba(255,255,255,.9);font-size:20px;line-height:1;transition:left .28s cubic-bezier(.22,1,.36,1),background .15s;backdrop-filter:blur(18px) saturate(160%)}
+    .month-collapse-toggle:hover{background:var(--brand-1);border-color:var(--brand-5)}
+    .detail-layout.month-panel-collapsed .month-collapse-toggle{left:8px}
+    .scope-tree{border-right:1px solid rgba(253,186,116,.35);background:linear-gradient(160deg,rgba(255,255,255,.66),rgba(255,247,237,.48));min-width:0;overflow:hidden;backdrop-filter:blur(24px) saturate(150%);box-shadow:inset -1px 0 0 rgba(255,255,255,.72)}
+    .tree-head{padding:15px 13px 12px;border-bottom:1px solid rgba(253,186,116,.28);background:rgba(255,255,255,.36);backdrop-filter:blur(20px)}
+    .tree-head strong{display:block;margin-bottom:3px}.tree-head .muted{font-size:11px;line-height:1.4}.tree-body{padding:8px 8px 24px;max-height:680px;overflow-y:auto;overflow-x:hidden;scroll-snap-type:y proximity;scrollbar-width:thin;scrollbar-color:rgba(234,88,12,.28) transparent}
+    .tree-head-row{display:block}.tree-actions{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:6px;margin:8px 0 5px}.ios-tree-btn{width:100%;height:27px;padding:0 6px;border:1px solid rgba(255,255,255,.88);border-radius:999px;background:rgba(255,255,255,.58);color:var(--brand-7);font-size:12px;white-space:nowrap;box-shadow:0 4px 12px rgba(120,53,15,.07),inset 0 1px 0 rgba(255,255,255,.9);backdrop-filter:blur(14px) saturate(150%);transition:.18s}.ios-tree-btn:hover{transform:translateY(-1px);background:rgba(255,247,237,.92);border-color:rgba(251,146,60,.32)}.ios-tree-btn.danger{color:#be123c;background:rgba(255,241,242,.62)}.ios-tree-btn.danger:hover{background:rgba(255,228,230,.88);border-color:rgba(251,113,133,.3)}
+    .ios-delete-modal{border-radius:24px;background:rgba(255,255,255,.88);border:1px solid rgba(255,255,255,.94);box-shadow:0 28px 70px rgba(41,37,36,.24),inset 0 1px 0 rgba(255,255,255,.96);backdrop-filter:blur(28px) saturate(160%)}.ios-delete-modal .modal-body{text-align:center;padding:25px 28px 22px}.delete-symbol{width:54px;height:54px;margin:0 auto 13px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#fff1f2,#ffe4e6);color:#e11d48;font-size:28px;font-weight:400;box-shadow:0 10px 22px rgba(225,29,72,.12),inset 0 1px 0 #fff}.ios-delete-modal h2{margin:0 0 8px;font-size:19px}.ios-delete-modal p{margin:0;color:var(--text-3);line-height:1.7}.btn.danger{background:#e11d48;border-color:#e11d48;color:#fff;border-radius:10px}.btn.danger:hover{background:#be123c;border-color:#be123c;color:#fff}.ios-delete-modal .modal-foot{justify-content:center;padding:13px 20px 18px;border-top:0}.ios-delete-modal .modal-foot .btn{min-width:112px;border-radius:11px}
+    .tree-body::-webkit-scrollbar{width:5px}.tree-body::-webkit-scrollbar-thumb{background:rgba(234,88,12,.28);border-radius:8px}
+    .tree-group{margin:2px 0}.tree-toggle,.tree-leaf{width:100%;min-height:34px;border:0;background:transparent;border-radius:4px;display:flex;align-items:center;text-align:left;padding:5px 8px;color:var(--text-2)}
+    .tree-toggle:hover,.tree-leaf:hover{background:var(--brand-1);color:var(--brand-7)}
+    .tree-leaf.active{background:var(--brand-2);color:var(--brand-7);font-weight:500}
+    .tree-arrow{width:18px;color:var(--text-4);font-size:11px}.tree-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .tree-children{margin-left:16px;border-left:1px solid var(--line-2);padding-left:4px}.tree-group.collapsed>.tree-children{display:none}.tree-group.collapsed>.tree-toggle .tree-arrow{transform:rotate(-90deg)}
+    .timeline-year{position:relative}.timeline-year+.timeline-year{margin-top:8px}.timeline-year-label{position:sticky;top:-8px;z-index:3;width:100%;height:34px;border:0;border-radius:10px;background:rgba(255,255,255,.78);color:var(--brand-7);font-weight:700;text-align:left;padding:0 10px;box-shadow:0 4px 14px rgba(120,53,15,.08),inset 0 1px 0 rgba(255,255,255,.92);backdrop-filter:blur(18px) saturate(160%)}
+    .timeline-year-label:after{content:"⌃";float:right;color:var(--brand-5);font-size:11px}.timeline-year.collapsed .timeline-year-label:after{content:"⌄"}.timeline-year.collapsed .timeline-months{display:none}
+    .timeline-months{position:relative;padding:7px 0 5px 17px}.timeline-months:before{content:"";position:absolute;left:9px;top:4px;bottom:4px;width:2px;border-radius:2px;background:linear-gradient(var(--brand-3),rgba(253,186,116,.2))}
+    .timeline-month{position:relative;width:100%;height:36px;border:0;border-radius:12px;background:transparent;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 14px;color:var(--text-2);scroll-snap-align:center;transition:transform .2s cubic-bezier(.22,1,.36,1),background .2s,box-shadow .2s,color .2s}
+    .timeline-dot{position:absolute;left:-12px;width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid var(--brand-4);box-shadow:0 0 0 3px rgba(255,255,255,.66)}
+    .timeline-month:hover{background:rgba(255,237,213,.62);color:var(--brand-7);transform:translateX(2px)}
+    .timeline-month.active{height:44px;margin:3px 0;background:linear-gradient(135deg,rgba(255,237,213,.92),rgba(255,255,255,.76));color:var(--brand-7);font-size:16px;font-weight:700;transform:scale(1.04);box-shadow:0 8px 22px rgba(194,65,12,.16),inset 0 1px 0 rgba(255,255,255,.95);backdrop-filter:blur(20px) saturate(165%)}
+    .timeline-month.active .timeline-dot{width:12px;height:12px;left:-14px;background:var(--brand-6);border:3px solid #fff;box-shadow:0 0 0 3px rgba(249,115,22,.20)}
+    .month-count{min-width:20px;height:20px;padding:0 5px;border-radius:10px;display:grid;place-items:center;font-size:11px;color:var(--text-3);background:rgba(255,255,255,.58)}.timeline-month.active .month-count{color:#fff;background:var(--brand-6)}
+    .flat-table table,.month-policy-table table{min-width:1580px}.month-policy-table{border:1px solid var(--line-2);border-radius:4px;overflow:auto;max-height:300px;margin-bottom:18px;transition:max-height .28s cubic-bezier(.22,1,.36,1)}
+    .policy-row.active td{background:var(--brand-1)}
+    .policy-row.viewing td{background:#fff7ed}.policy-row.viewing td:first-child{box-shadow:inset 3px 0 0 var(--brand-6)}.policy-row.viewing:hover td{background:#ffedd5}
+    .inline-calendar-row td{height:auto;padding:0;border-bottom:1px solid var(--line-2);white-space:normal;background:#fff}
+    .inline-calendar-panel{padding:14px 16px 16px;background:linear-gradient(145deg,rgba(255,247,237,.68),rgba(255,255,255,.96) 44%,rgba(255,251,235,.72));box-shadow:inset 0 8px 18px -18px rgba(120,53,15,.55)}
+    .inline-calendar-head{display:flex;align-items:center;justify-content:flex-end;margin-bottom:6px}
+    .inline-calendar-actions{display:flex;align-items:center;gap:8px}
+    .inline-calendar-panel .calendar-month-head{display:none}.inline-calendar-panel .calendar-scroll{max-height:none}.inline-calendar-panel .calendar-panel{min-width:790px}
+    .detail-content{padding:18px;min-width:0;background:linear-gradient(145deg,rgba(255,247,237,.72),rgba(255,255,255,.92) 38%,rgba(255,251,235,.72));}
+    .month-list-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.month-list-head .section-title{margin:0}.calendar-toggle{height:30px;padding:0 11px;border:1px solid rgba(253,186,116,.5);border-radius:999px;background:rgba(255,255,255,.7);color:var(--brand-7);display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;box-shadow:0 5px 14px rgba(120,53,15,.07),inset 0 1px 0 rgba(255,255,255,.94);backdrop-filter:blur(14px)}.calendar-toggle:hover{background:var(--brand-1);border-color:var(--brand-5)}.calendar-toggle .toggle-arrow{font-size:15px;line-height:1;transition:transform .2s}.detail-content.calendar-collapsed .calendar-toggle .toggle-arrow{transform:rotate(180deg)}.detail-content.calendar-collapsed #detailContent{display:none}.detail-content.calendar-collapsed .month-policy-table{max-height:calc(100vh - 236px);margin-bottom:0}
+    .empty-detail{min-height:480px;display:grid;place-items:center;color:var(--text-3)}
+    .scope-path{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:var(--text-3);margin-bottom:14px}.scope-path strong{color:var(--brand-7);font-weight:500}
+    .info-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+    .info-card{border:1px solid rgba(255,255,255,.82);border-radius:12px;padding:12px 13px;background:rgba(255,255,255,.68);box-shadow:0 6px 18px rgba(120,53,15,.06);backdrop-filter:blur(12px);min-width:0}
+    .info-card .label{font-size:12px;color:var(--text-3);margin-bottom:5px}.info-card .value{font-size:13px;font-weight:500;line-height:1.45;overflow-wrap:anywhere}
+    .price-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:16px}.price-summary .price-card{border-radius:12px;background:rgba(255,247,237,.72);border-color:rgba(253,186,116,.48);box-shadow:0 6px 18px rgba(120,53,15,.05);backdrop-filter:blur(12px)}.price-value{font-size:18px;font-weight:600;color:var(--brand-7)}
+    .month-table{border:1px solid var(--line-2);border-radius:4px;overflow:auto;max-height:390px}.month-table table{min-width:720px}.month-table th,.month-table td{height:38px}
+    .read-tag{display:inline-flex;align-items:center;height:22px;padding:0 7px;border-radius:3px;background:var(--brand-1);color:var(--brand-7);font-size:12px}
+    .calendar-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.calendar-title-row .section-title{margin:0}.calendar-month-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 2px 6px;color:var(--brand-7)}.calendar-legend{display:flex;align-items:center;gap:6px}.calendar-legend-item{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:999px;font-size:9px;font-weight:700}.calendar-legend-item.sunday{color:#c2410c;background:#ffedd5;border:1px solid #fb923c}.calendar-legend-item.holiday{color:#be123c;background:#ffe4e6;border:1px solid #fb7185}
+    .editor-multi-select{width:100%}.editor-multi-select summary{min-height:36px;border-radius:8px}.editor-multi-select .multi-options{z-index:180}.editor-multi-select.disabled{pointer-events:none;opacity:.72}.combination-hint{grid-column:1/-1;padding:9px 12px;border:1px solid #fed7aa;border-radius:9px;background:#fff7ed;color:#9a3412;font-size:12px}
+    .holiday-status{display:flex;align-items:center;gap:6px;color:var(--brand-7);font-size:12px;background:rgba(255,247,237,.76);border:1px solid rgba(253,186,116,.5);padding:6px 9px;border-radius:999px;backdrop-filter:blur(10px)}
+    .calendar-panel{min-width:790px;border:1px solid rgba(255,255,255,.92);border-radius:20px;padding:7px;overflow:hidden;background:radial-gradient(circle at 8% 0,rgba(255,237,213,.82),transparent 34%),radial-gradient(circle at 92% 18%,rgba(254,215,170,.48),transparent 30%),linear-gradient(145deg,rgba(255,255,255,.8),rgba(255,247,237,.58));box-shadow:0 14px 34px rgba(120,53,15,.1),inset 0 1px 0 rgba(255,255,255,.96);backdrop-filter:blur(24px) saturate(155%)}
+    .calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(14,minmax(50px,1fr));gap:3px}
+    .calendar-weekdays{margin-bottom:4px}
+    .calendar-weekday{height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;color:#78716c;font-size:11px;font-weight:650;background:rgba(255,255,255,.34)}
+    .calendar-period{padding:3px;border-radius:13px;background:rgba(250,250,249,.56);border:1px solid #e7e5e4;box-shadow:inset 0 1px 0 rgba(255,255,255,.9)}.calendar-period+.calendar-period{margin-top:4px}
+    .calendar-period-label{display:flex;align-items:center;gap:5px;margin:0 2px 2px;color:var(--text-3);font-size:9px;line-height:1.2}.calendar-period-label span{padding:1px 5px;border-radius:999px;background:rgba(255,255,255,.62)}.calendar-period-label strong{font-size:10px;color:var(--brand-7);letter-spacing:.1px}
+    .calendar-empty{min-height:62px;background:rgba(245,245,244,.38);border:1px solid #eeeeec;border-radius:10px}
+    .day-card{position:relative;isolation:isolate;overflow:hidden;min-height:62px;background:rgba(255,255,255,.96);border:1px solid #d6d3d1;border-radius:10px;padding:4px 5px;display:flex;flex-direction:column;gap:2px;box-shadow:0 2px 7px rgba(68,64,60,.05),inset 0 1px 0 #fff;transition:transform .18s ease,box-shadow .18s ease,background .18s ease;backdrop-filter:blur(14px) saturate(130%)}
+    .day-card:after{content:"";position:absolute;z-index:-1;width:54px;height:54px;border-radius:50%;right:-28px;bottom:-32px;background:rgba(120,113,108,.04);filter:blur(2px)}
+    .day-card:hover{transform:translateY(-2px);background:#fff;box-shadow:0 8px 18px rgba(68,64,60,.1),inset 0 0 0 1px rgba(253,186,116,.25)}
+    .day-card.is-sunday{background:#fff7ed;border:1.5px solid #fb923c;box-shadow:inset 0 3px 0 #f97316,0 4px 10px rgba(234,88,12,.1)}
+    .day-card.is-holiday{background:#fff1f2;border:1.5px solid #fb7185;box-shadow:inset 0 3px 0 #e11d48,0 4px 10px rgba(225,29,72,.1)}
+    .day-card.inactive{background:rgba(245,245,244,.45);color:var(--text-4);box-shadow:none}
+    .day-card-head{display:flex;align-items:center;justify-content:space-between;gap:4px;min-height:14px}
+    .day-number{display:inline-grid;place-items:center;min-width:17px;height:17px;padding:0 3px;border-radius:6px;font-size:10px;font-weight:650;color:#78716c;font-variant-numeric:tabular-nums;letter-spacing:0}.day-card.is-sunday .day-number{color:#fff;background:#f97316;font-weight:800}.day-card.is-holiday .day-number{color:#fff;background:#e11d48;font-weight:800}
+    .day-type-tag{display:inline-flex;align-items:center;height:16px;padding:0 5px;border-radius:999px;font-size:8px;font-weight:750;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,.62)}.day-type-tag.sunday{background:#fed7aa;color:#9a3412;border:1px solid #fb923c}.day-type-tag.holiday{background:#fecdd3;color:#9f1239;border:1px solid #fb7185}
+    .day-metrics{margin-top:auto;display:grid;grid-template-columns:1fr;gap:1px}
+    .day-metric{display:block;min-width:0}
+    .day-weight,.day-price{display:flex;align-items:baseline;gap:3px;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .day-weight{font-size:16px;line-height:1;font-weight:800;color:#292524;letter-spacing:-.35px}.day-weight small{font-size:8px;font-weight:550;color:#78716c;letter-spacing:0}
+    .day-price{font-size:14px;line-height:1;font-weight:800;color:#ea580c;letter-spacing:-.25px}.day-price small{font-size:8px;font-weight:550;color:#c2410c;letter-spacing:0}
+    .day-card.inactive .day-weight,.day-card.inactive .day-price{color:var(--text-4)}
+    .calendar-scroll{overflow:auto;max-height:455px;border-radius:20px}
+    .rule-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+    .rule-card{display:grid;grid-template-columns:minmax(92px,auto) minmax(72px,1fr);align-items:center;gap:8px;padding:11px 10px;border:1px solid rgba(253,186,116,.45);border-radius:12px;background:rgba(255,247,237,.72);backdrop-filter:blur(10px)}
+    .rule-card label{display:block;color:var(--text-2);font-size:12px;margin:0;line-height:1.35}.rule-card .control{font-size:16px;font-weight:600;color:var(--brand-7)}
+    .preview-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0}
+    .segmented{display:inline-flex;padding:3px;border-radius:9px;background:var(--fill-3);border:1px solid var(--line-2)}
+    .segmented button{height:28px;padding:0 14px;border:0;border-radius:7px;background:transparent;color:var(--text-3)}
+    .segmented button.active{background:#fff;color:var(--brand-7);box-shadow:0 2px 8px rgba(120,53,15,.10);font-weight:500}
+    .inheritance-note{font-size:12px;color:var(--text-3);line-height:1.6;margin:-4px 0 12px}
+    .preview-list table{min-width:700px}.preview-list{max-height:390px}
+    @media(max-width:1100px){.filter-grid{grid-template-columns:repeat(2,minmax(160px,1fr))}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.price-rule-grid{grid-template-columns:1fr}.rule-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:1100px){.detail-layout{grid-template-columns:148px minmax(0,1fr)}.month-collapse-toggle{left:130px}.info-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:760px){.app{grid-template-columns:1fr}.topbar{grid-column:1}.brand{width:auto;border-right:0}.top-actions{justify-content:flex-end}.crumb{display:none}.sidebar{display:none}.main{grid-column:1;padding:12px}.filter-grid,.form-grid,.rule-grid{grid-template-columns:1fr}.rule-card{grid-template-columns:132px minmax(0,1fr)}.page-head{align-items:center}.drawer{width:100vw}.summary-grid{grid-template-columns:repeat(2,1fr)}.date-filter{align-items:stretch;flex-direction:column}.date-filter .field{width:100%}.detail-layout{grid-template-columns:1fr}.scope-tree{border-right:0;border-bottom:1px solid var(--line-2)}.tree-body{max-height:260px}.detail-head{align-items:flex-start;flex-direction:column}.info-grid,.price-summary{grid-template-columns:1fr}}
+  </style>
+  <link rel="stylesheet" href="../rh-design-v3.css" />
+  <style>
+    body.policy-page{overflow:hidden}
+    .policy-page .app{height:100vh;min-height:0;overflow:hidden}
+    .policy-page .topbar{position:relative;z-index:30;flex:none}
+    .policy-page .sidebar{min-height:0;overflow:hidden!important}
+    .policy-page .main{display:flex;height:100%;min-height:0;overflow:hidden!important}
+    .policy-page .workspace{display:flex;flex:1;flex-direction:column;width:100%;height:100%;min-height:0;overflow:hidden}
+    .policy-page .tabs{flex:0 0 auto}
+    .policy-page #configsPanel,.policy-page #importsPanel{flex:1;min-height:0;overflow:hidden}
+    .policy-page #flatListView{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden}
+    .policy-page .policy-filter{position:relative;z-index:12;flex:0 0 auto;overflow:visible}
+    .policy-page .policy-list-card{display:flex;flex:1;flex-direction:column;min-height:0;overflow:hidden}
+    .policy-page .policy-list-card>.toolbar{flex:0 0 auto}
+    .policy-page .policy-list-card>.flat-table{flex:1;min-height:0;overflow:auto}
+    .policy-page .policy-pager{position:relative;z-index:5;flex:0 0 60px;margin:0;border-top:1px solid var(--rh-line-light);background:var(--rh-white)!important}
+    .policy-page #importsPanel:not(.hidden){display:flex;flex-direction:column}
+    .policy-page #importsPanel>.toolbar{flex:0 0 auto}
+    .policy-page #importsPanel>.table-wrap{flex:1;min-height:0;overflow:auto}
+    .policy-page #importsPanel>.pager{flex:0 0 60px;margin:0;border-top:1px solid var(--rh-line-light);background:var(--rh-white)!important}
+    .problem-pool-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.problem-pool-toolbar-left,.problem-pool-toolbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.problem-pool-table{position:relative;overflow:auto}.problem-pool-table table{min-width:1900px}.problem-edit-control{width:100%;min-width:96px;height:30px;padding:0 7px;border:1px solid var(--rh-line-strong);border-radius:4px;background:var(--rh-white);font-size:12px}.problem-edit-control:focus{border-color:var(--rh-primary);outline:0;box-shadow:0 0 0 2px rgba(250,84,28,.1)}.problem-reason{max-width:220px;white-space:normal;line-height:1.5}.problem-actions{display:flex;gap:12px;white-space:nowrap}.problem-pool-table .problem-status-sticky,.problem-pool-table .problem-actions-sticky{position:sticky;background:var(--rh-white)}.problem-pool-table .problem-actions-sticky{right:0;z-index:5;width:150px;min-width:150px}.problem-pool-table .problem-status-sticky{right:150px;z-index:4;width:110px;min-width:110px;box-shadow:-8px 0 12px -12px rgba(55,34,20,.45)}.problem-pool-table thead .problem-status-sticky,.problem-pool-table thead .problem-actions-sticky{z-index:9;background:var(--rh-fill-1)}.problem-pool-table tbody tr:hover .problem-status-sticky,.problem-pool-table tbody tr:hover .problem-actions-sticky{background:var(--rh-fill-1)}.problem-pool-empty{padding:50px 20px;color:var(--rh-text-3);text-align:center}
+    @media(max-width:760px){body.policy-page{overflow:auto}.policy-page .app{height:auto;min-height:100%}.policy-page .main{height:auto;overflow:visible!important}.policy-page .workspace{height:auto;overflow:visible}.policy-page #configsPanel,.policy-page #importsPanel,.policy-page #flatListView{overflow:visible}.policy-page .policy-list-card>.flat-table,.policy-page #importsPanel>.table-wrap{max-height:60vh}}
+  </style>
+  <script src="../rh-design-v3.js" defer></script>
+</head>
+<body class="policy-page">
+  <div class="app">
+    <header class="topbar">
+      <div class="brand"><div class="brand-mark">融</div><span>融辉物流 TMS</span></div>
+      <div class="top-actions">
+        <div class="crumb">网点返利 / <strong>政策导入</strong></div>
+        <div class="user"><button class="icon-btn" aria-label="消息">◇</button><div class="avatar">李</div><span>李未</span><span>⌄</span></div>
+      </div>
+    </header>
+    <aside class="sidebar">
+      <div class="menu-title">网点返利</div>
+      <a class="menu-item active" href="../政策管理/index.html"><span class="menu-icon">⇧</span>政策导入</a>
+      <a class="menu-item" href="../每日返利/index.html"><span class="menu-icon">◷</span>返利管理</a>
+      <a class="menu-item" href="../返利看板/index.html"><span class="menu-icon">◇</span>返利看板</a>
+    </aside>
+    <main class="main">
+      <section class="workspace">
+        <div class="tabs">
+          <button class="tab active" data-tab="configs">政策配置</button><button class="tab" data-tab="imports">导入任务</button>
+        </div>
+        <div id="configsPanel">
+          <div id="flatListView">
+            <div class="policy-filter" aria-label="政策配置筛选">
+              <div class="filter-item filter-date"><label>生效日期</label><div class="date-range-picker"><button id="filterDateRange" class="date-range-trigger" type="button" aria-expanded="false"><span id="filterDateText">请选择时间段</span><span class="date-range-icon">▣</span></button><input id="filterStart" type="hidden" /><input id="filterEnd" type="hidden" /><div id="filterDatePopover" class="date-range-popover hidden"><div class="range-calendar-head"><button id="rangePrevMonth" class="range-month-btn" type="button" aria-label="上一个月">‹</button><strong id="rangeMonthLabel"></strong><button id="rangeNextMonth" class="range-month-btn" type="button" aria-label="下一个月">›</button></div><div class="range-weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div><div id="rangeCalendarDays" class="range-calendar-days"></div><div id="rangeSelectionTip" class="range-selection-tip">请选择开始日期</div><div class="date-range-actions"><button id="filterDateClear" class="btn text" type="button">清除</button><button id="filterDateConfirm" class="btn primary" type="button" disabled>确认日期</button></div></div></div></div>
+              <div class="filter-item"><label>寄件网点</label><details class="multi-select" data-filter="site" data-searchable="true"><summary>请选择网点</summary><div class="multi-options"></div></details></div>
+              <div class="filter-item"><label>目的流向</label><details class="multi-select" data-filter="endpoint" data-searchable="true"><summary>请选择流向</summary><div class="multi-options"></div></details></div>
+              <div class="filter-item"><label>货物类型</label><details class="multi-select" data-filter="cargo"><summary>请选择类型</summary><div class="multi-options"></div></details></div>
+              <div class="filter-item"><label>公斤段</label><details class="multi-select" data-filter="band"><summary>请选择公斤段</summary><div class="multi-options"></div></details></div>
+              <div class="filter-item"><label>考核周期</label><details class="multi-select" data-filter="cycle"><summary>请选择周期</summary><div class="multi-options"></div></details></div>
+              <div class="filter-item"><label>是否启用</label><select id="filterEnabled" class="control" aria-label="是否启用"><option value="">全部</option><option value="enabled">启用</option><option value="disabled">停用</option></select></div>
+              <div class="filter-actions policy-filter-actions"><button id="policyQuery" class="btn primary">查询</button><button id="policyReset" class="btn">重置</button></div>
+            </div>
+            <div class="policy-list-card">
+              <div class="toolbar"><div class="toolbar-left"><button id="addBtn" class="btn primary"><span>＋</span>新增配置</button><button id="importBtn" class="btn"><span>⇧</span>Excel导入</button><button id="bulkDisableBtn" class="btn" type="button" disabled>批量停用</button><button id="bulkDeleteBtn" class="btn" type="button" disabled>批量删除</button></div><div class="toolbar-right"><span id="resultCount" class="muted"></span><button class="icon-btn" aria-label="刷新" id="refreshBtn">↻</button></div></div>
+              <div class="table-wrap flat-table"><table aria-label="全部返利配置"><thead><tr><th style="width:42px"><input class="checkbox" type="checkbox" data-select-all="flat" aria-label="全选全部返利配置" /></th><th>生效日期</th><th>寄件网点</th><th>目的流向</th><th>产品类型</th><th>货物类型</th><th>公斤段</th><th>考核周期</th><th>是否启用</th><th>导入时间</th><th>导入人</th><th>操作</th></tr></thead><tbody id="flatBody"></tbody></table></div>
+              <div class="pager policy-pager"><div class="pager-summary"><span id="flatTotal"></span><label class="page-size-control">每页<select id="pageSize" aria-label="每页展示条数"><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option><option value="100">100</option></select>条</label></div><div class="pager-controls"><button id="prevPage" class="page-btn" type="button" aria-label="上一页">‹</button><div id="pageNumbers" class="page-numbers"></div><button id="nextPage" class="page-btn" type="button" aria-label="下一页">›</button><span id="pageStatus" class="page-status"></span></div></div>
+            </div>
+          </div>
+          <div id="treeModeView" class="hidden">
+            <div class="detail-head">
+              <div id="detailSubtitle" class="muted">仅展示当前月份，共 3 条配置</div>
+              <div class="detail-actions"><button id="detailAdd" class="btn primary">新增配置</button><button id="detailImport" class="btn">Excel导入</button><button id="holidayImportBtn" class="btn">导入国家法定节假日</button></div>
+            </div>
+            <div class="detail-layout">
+              <button id="collapseMonthPanel" class="month-collapse-toggle" type="button" aria-label="向左收起生效年月" title="向左收起生效年月">‹</button>
+              <aside class="scope-tree">
+                <div class="tree-head"><div class="tree-head-row"><strong>生效年月</strong><div class="tree-actions"><button id="addMonthBtn" class="ios-tree-btn" type="button">＋新增</button><button id="deleteMonthBtn" class="ios-tree-btn danger" type="button">删除</button></div></div><div class="muted">按年月倒序排列</div></div>
+                <div id="monthTree" class="tree-body month-tree"></div>
+              </aside>
+              <section class="detail-content">
+                <div class="month-list-head"><div class="section-title">当月返利配置</div><button id="calendarToggle" class="calendar-toggle" type="button" aria-expanded="true"><span class="toggle-arrow">⌃</span><span id="calendarToggleText">收起日历</span></button></div>
+                <div class="month-policy-table"><table aria-label="当月返利配置"><thead><tr><th style="width:42px"><input class="checkbox" type="checkbox" data-select-all="month" aria-label="全选当月返利配置" /></th><th>生效日期</th><th>寄件网点</th><th>目的流向</th><th>产品类型</th><th>货物类型</th><th>公斤段</th><th>考核周期</th><th>是否启用</th><th>导入时间</th><th>导入人</th><th>操作</th></tr></thead><tbody id="monthPolicyBody"></tbody></table></div>
+                <div id="detailContent"></div>
+              </section>
+            </div>
+          </div>
+        </div>
+        <div id="importsPanel" class="hidden">
+          <div class="toolbar"><div class="toolbar-left"><button class="btn primary" id="importBtn2">Excel导入</button><button class="btn" id="downloadTemplate">下载导入模板</button></div><div class="toolbar-right"><span class="muted">最近30天</span></div></div>
+          <div class="table-wrap"><table aria-label="导入记录"><thead><tr><th>导入批次号</th><th>文件名称</th><th>导入状态</th><th>总行数</th><th>通过</th><th>失败</th><th>替换</th><th>导入人</th><th>导入时间</th><th>操作</th></tr></thead><tbody id="importBody"></tbody></table></div>
+          <div class="pager"><span>共 3 条</span><button class="page-btn" disabled>‹</button><button class="page-btn active">1</button><button class="page-btn" disabled>›</button></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="overlay" class="overlay"></div>
+  <aside id="editorDrawer" class="drawer" aria-hidden="true">
+    <div class="drawer-head"><h2 id="drawerTitle">新增返利配置</h2><button class="icon-btn close-layer" aria-label="关闭">×</button></div>
+    <div class="drawer-body">
+      <div class="notice">按生效开始、结束日期维护。跨月时系统自动拆分为月度配置，周考核在每个自然月内重新按1—7日、8—14日等固定周期计算。</div>
+      <section class="section">
+        <div class="section-title">维护范围</div>
+        <div class="form-grid">
+          <div class="field"><label>生效开始日期 *</label><input id="eStart" class="control" type="date" value="2026-10-01" /></div>
+          <div class="field"><label>生效结束日期 *</label><input id="eEnd" class="control" type="date" value="2026-10-31" /></div>
+          <div class="field"><label>考核周期 *</label><select id="eCycle" class="control"><option selected>周</option><option>月</option></select><div id="cycleHint" class="hint">1—7日、8—14日、15—21日、22—28日、29日—月末</div></div>
+          <div class="field"><label>是否启用</label><div class="status-switch-field"><button id="eEnabled" class="switch on" type="button" role="switch" aria-checked="true" aria-label="是否启用"></button><span id="eEnabledText" class="switch-label">启用</span></div><div class="hint">启用时自动检测重复政策</div></div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="section-title">适用范围</div>
+        <div class="form-grid">
+          <div class="field"><label>寄件网点 *</label><select id="eSite" class="control"><option>安龙站</option><option>安顺商贸城S站</option><option>贵阳花溪S站</option><option>杭州临平网点</option><option>嘉兴秀洲网点</option><option>宁波北仑网点</option></select></div>
+          <div class="field"><label>目的流向 *</label><select id="eEndpoint" class="control"></select></div>
+          <div class="field"><label>产品类型 *</label><details id="eProduct" class="multi-select editor-multi-select" data-editor-multi="product"><summary>请选择产品类型</summary><div class="multi-options"></div></details></div>
+          <div class="field"><label>货物类型 *</label><details id="eCargo" class="multi-select editor-multi-select" data-editor-multi="cargo"><summary>请选择货物类型</summary><div class="multi-options"></div></details></div>
+          <div class="field"><label>公斤段 *</label><details id="eBand" class="multi-select editor-multi-select" data-editor-multi="band"><summary>请选择公斤段</summary><div class="multi-options"></div></details></div>
+          <div id="combinationHint" class="combination-hint">请选择产品类型、货物类型和公斤段；提交后系统按排列组合拆分为原子政策。</div>
+        </div>
+      </section>
+      <section class="section">
+        <div class="section-title">每日返利配置</div>
+        <div class="rule-grid">
+          <div class="rule-card"><label>日基准量（kg）</label><input id="dailyBase" class="control config-input" type="number" min="0" value="500" /></div>
+          <div class="rule-card"><label>工作日基准量（kg）</label><input id="workdayBase" class="control config-input" type="number" min="0" placeholder="未填时使用日基准量" /></div>
+          <div class="rule-card"><label>周日基准量（kg）</label><input id="sundayBase" class="control config-input" type="number" min="0" placeholder="未填时使用日基准量" /></div>
+          <div class="rule-card"><label>节假日基准量（kg）</label><input id="holidayBase" class="control config-input" type="number" min="0" placeholder="未填时按星期继承" /></div>
+        </div>
+        <div class="rule-grid">
+          <div class="rule-card"><label>日返利单价（元/kg）</label><input id="dailyPrice" class="control config-input" type="number" min="0" step="0.01" value="0.01" /></div>
+          <div class="rule-card"><label>工作日返利单价（元/kg）</label><input id="workdayPrice" class="control config-input" type="number" min="0" step="0.01" placeholder="未填时使用日返利" /></div>
+          <div class="rule-card"><label>周日返利单价（元/kg）</label><input id="sundayPrice" class="control config-input" type="number" min="0" step="0.01" placeholder="未填时使用日返利" /></div>
+          <div class="rule-card"><label>节假日返利单价（元/kg）</label><input id="holidayPrice" class="control config-input" type="number" min="0" step="0.01" placeholder="未填时按星期继承" /></div>
+        </div>
+        <div class="inheritance-note">优先级：节假日 ＞ 工作日/周日 ＞ 日。输入内容后，下方有效值立即刷新。</div>
+        <div class="preview-head"><div><strong>每日配置预览</strong><div class="muted" id="previewRange" style="margin-top:4px"></div></div><div class="segmented"><button id="previewCalendarTab" class="active">日历</button><button id="previewListTab">列表</button></div></div>
+        <div id="dailyCalendarPreview"></div>
+        <div id="dailyListPreview" class="config-table preview-list hidden"><table><thead><tr><th>日期</th><th>星期</th><th>日期类型</th><th>有效基准量（kg）</th><th>有效返利单价（元/kg）</th></tr></thead><tbody id="dailyBody"></tbody></table></div>
+      </section>
+    </div>
+    <div class="drawer-foot"><button class="btn close-layer">取消</button><button id="saveConfig" class="btn primary">保存配置</button></div>
+  </aside>
+
+  <aside id="problemPoolDrawer" class="drawer" aria-hidden="true">
+    <div class="drawer-head"><div><h2>导入问题数据</h2><div id="problemPoolSubtitle" class="muted"></div></div><button class="icon-btn close-layer" aria-label="关闭">×</button></div>
+    <div class="drawer-body">
+      <div class="notice" style="margin-bottom:14px">展示当前导入批次中全部未成功导入的Excel数据。可在线修改、删除，也可批量下载后修正并二次导入。</div>
+      <div class="problem-pool-toolbar"><div class="problem-pool-toolbar-left"><span id="problemPoolCount" class="muted"></span><span id="problemSelectedCount" class="selection-count">已选 0 条</span></div><div class="problem-pool-toolbar-right"><button id="downloadSelectedProblems" class="btn" type="button" disabled>下载选中问题数据</button><button id="downloadAllProblems" class="btn" type="button">下载全部问题数据</button></div></div>
+      <div class="table-wrap problem-pool-table"><table aria-label="导入问题数据"><thead><tr><th style="width:42px"><input id="selectAllProblems" class="checkbox" type="checkbox" aria-label="全选当前批次问题数据" /></th><th>Excel行号</th><th>生效日期</th><th>寄件网点</th><th>目的流向</th><th>产品类型</th><th>货物类型</th><th>公斤段</th><th>考核周期</th><th>失败原因</th><th class="problem-status-sticky">处理状态</th><th class="problem-actions-sticky">操作</th></tr></thead><tbody id="problemPoolBody"></tbody></table></div>
+    </div>
+    <div class="drawer-foot"><button class="btn close-layer" type="button">关闭</button><button id="problemReimport" class="btn primary" type="button">二次导入</button></div>
+  </aside>
+
+  <section id="importModal" class="modal" aria-hidden="true">
+    <div class="modal-head"><h2>Excel导入</h2><button class="icon-btn close-layer" aria-label="关闭">×</button></div>
+    <div class="modal-body">
+      <div class="steps"><div class="step active"><span class="step-dot">1</span>上传文件</div><div class="step-line"></div><div class="step" id="step2"><span class="step-dot">2</span>校验与预览</div><div class="step-line"></div><div class="step" id="step3"><span class="step-dot">3</span>确认导入</div></div>
+      <div id="uploadStage">
+        <div class="upload-zone"><div class="upload-icon">⇧</div><p><strong>选择Excel文件导入返利配置</strong></p><p class="small-note">使用“适用范围”工作表填写；跨月日期范围由系统自动拆分</p><div style="margin-top:14px"><input id="fileInput" type="file" accept=".xlsx,.xls" class="hidden" /><button class="btn primary" id="chooseFile">选择文件</button></div></div>
+        <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center"><span class="muted">请先使用最新导入模板填写</span><button class="btn text download-template">下载导入模板</button></div>
+      </div>
+      <div id="previewStage" class="hidden">
+        <div class="file-row"><div><strong id="selectedFile">网点返利配置_2026年10月.xlsx</strong><div id="importValidationText" class="muted" style="margin-top:4px">已完成格式、枚举、文件内重复和现有政策冲突校验</div></div><button class="btn text" id="replaceFile">重新选择</button></div>
+        <div class="summary-grid"><div class="summary"><span>Excel总行数</span><strong id="importTotalRows">0</strong></div><div class="summary good"><span>校验通过</span><strong id="importPassedRows">0</strong></div><div class="summary bad"><span>进入信息池</span><strong id="importFailedRows">0</strong></div><div class="summary"><span>生成政策</span><strong id="importGeneratedCount">0</strong></div><div class="summary warn"><span>替换数量</span><strong id="importReplacementCount">0</strong></div></div>
+        <div id="importPreviewNotice" class="notice" style="margin-bottom:16px"></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn close-layer">取消</button><button id="confirmImport" class="btn primary" disabled>确认导入</button></div>
+  </section>
+
+  <section id="holidayModal" class="modal confirm-modal" aria-hidden="true">
+    <div class="modal-head"><h2>导入国家法定节假日</h2><button class="icon-btn close-layer" aria-label="关闭">×</button></div>
+    <div class="modal-body">
+      <div class="notice">节假日数据优先于星期规则。导入后，法定节假日优先使用节假日基准量和返利单价；未填写节假日值时按当天星期类型继续继承。</div>
+      <div class="form-grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px">
+        <div class="field"><label>适用年份</label><select id="holidayYear" class="control"><option selected>2026</option><option>2025</option></select></div>
+        <div class="field"><label>更新方式</label><select class="control"><option>覆盖该年度数据</option><option>追加并更新重复日期</option></select></div>
+      </div>
+      <div class="upload-zone"><div class="upload-icon">⇧</div><p><strong id="holidayFileName">2026年国家法定节假日.xlsx</strong></p><p class="small-note">字段：日期、节假日名称、日期类型</p><div style="margin-top:12px"><input id="holidayFile" type="file" accept=".xlsx,.xls,.csv" class="hidden" /><button id="chooseHolidayFile" class="btn">选择文件</button><button id="loadOfficialHoliday" class="btn primary">加载2026年官方示例</button></div></div>
+      <div id="holidayPreview" class="file-row"><div><strong>已识别7组节假日</strong><div class="muted" style="margin-top:4px">元旦、春节、清明节、劳动节、端午节、中秋节、国庆节</div></div><span class="tag orange">校验通过</span></div>
+    </div>
+    <div class="modal-foot"><button class="btn close-layer">取消</button><button id="confirmHolidayImport" class="btn primary">确认导入</button></div>
+  </section>
+
+  <section id="monthModal" class="modal confirm-modal" aria-hidden="true">
+    <div class="modal-head"><h2>新增生效月份</h2><button class="icon-btn close-layer" aria-label="关闭">×</button></div>
+    <div class="modal-body">
+      <div class="field"><label>生效年月 *</label><input id="newMonthInput" class="control" type="month" /></div>
+      <div class="notice" style="margin:14px 0 0">月份必须使用“年份＋月份”格式，例如2026年10月。新增后可在该月份下继续新增返利配置。</div>
+    </div>
+    <div class="modal-foot"><button class="btn close-layer">取消</button><button id="confirmAddMonth" class="btn primary">确认新增月份</button></div>
+  </section>
+
+  <section id="deleteMonthModal" class="modal confirm-modal ios-delete-modal" aria-hidden="true">
+    <div class="modal-body">
+      <div class="delete-symbol">−</div>
+      <h2 id="deleteMonthTitle">删除当前月份？</h2>
+      <p id="deleteMonthText">删除后，该月份及其配置将从年月树中移除。</p>
+    </div>
+    <div class="modal-foot"><button class="btn close-layer">取消</button><button id="confirmDeleteMonth" class="btn danger">确认删除</button></div>
+  </section>
+
+  <section id="bulkDisableModal" class="modal confirm-modal ios-delete-modal" aria-hidden="true">
+    <div class="modal-body">
+      <div class="delete-symbol">–</div>
+      <h2>确认批量停用？</h2>
+      <p id="bulkDisableText">已选择 0 条政策。</p>
+      <div class="notice" style="margin-top:14px;text-align:left">停用后不再参与后续政策匹配。系统不提供批量启用；如需启用新政策，请重新导入。</div>
+    </div>
+    <div class="modal-foot"><button class="btn close-layer">取消</button><button id="confirmBulkDisable" class="btn danger">确认批量停用</button></div>
+  </section>
+
+  <section id="bulkDeleteModal" class="modal confirm-modal ios-delete-modal" aria-hidden="true">
+    <div class="modal-body">
+      <div class="delete-symbol">−</div>
+      <h2>确认批量删除？</h2>
+      <p id="bulkDeleteText">已选择 0 条政策。</p>
+      <div class="notice" style="margin-top:14px;text-align:left">只有尚未生效的政策可以删除。已经生效或参与返利计算的政策不会删除，请使用停用处理。</div>
+    </div>
+    <div class="modal-foot"><button class="btn close-layer">取消</button><button id="confirmBulkDelete" class="btn danger">确认批量删除</button></div>
+  </section>
+
+  <div id="toast" class="toast" role="status"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

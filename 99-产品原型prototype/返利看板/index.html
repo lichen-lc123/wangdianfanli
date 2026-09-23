@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>返利看板 - 网点返利</title>
+  <style>
+    :root{--orange:#ea580c;--orange-dark:#c2410c;--orange-soft:#fff3e8;--red:#e5484d;--ink:#292524;--sub:#78716c;--muted:#a8a29e;--line:#e7e5e4;--bg:#f5f5f4}
+    *{box-sizing:border-box}html,body{height:100%;margin:0;font:14px/1.5 "Microsoft YaHei","PingFang SC",sans-serif;color:var(--ink);background:var(--bg)}button,input,select{font:inherit}button{cursor:pointer}.app{min-height:100%;display:grid;grid-template-columns:200px minmax(0,1fr);grid-template-rows:54px minmax(0,1fr)}
+    .topbar{grid-column:1/3;display:flex;align-items:center;background:#fff;border-bottom:1px solid var(--line);z-index:10}.brand{width:200px;height:54px;padding:0 18px;display:flex;align-items:center;gap:10px;border-right:1px solid var(--line);font-weight:650}.brand-mark{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#fb923c,var(--orange));box-shadow:0 6px 14px rgba(234,88,12,.22)}.top-actions{flex:1;display:flex;align-items:center;justify-content:space-between;padding:0 18px}.crumb{font-size:13px;color:var(--sub)}.crumb strong{color:var(--ink)}.user{display:flex;align-items:center;gap:9px}.avatar{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:#ffedd5;color:var(--orange-dark);font-weight:700}
+    .sidebar{grid-row:2;background:#fff;border-right:1px solid var(--line);padding:12px 8px;position:sticky;top:54px;height:calc(100vh - 54px)}.menu-title{padding:6px 12px;color:var(--muted);font-size:12px}.menu-item{height:42px;padding:0 12px;margin:2px 0;display:flex;align-items:center;gap:10px;border-radius:8px;color:#44403c;text-decoration:none}.menu-item:hover{background:#fafaf9}.menu-item.active{padding-left:9px;border-left:3px solid var(--orange);background:var(--orange-soft);color:var(--orange-dark);font-weight:650}.menu-icon{width:18px;text-align:center}
+    .main{grid-column:2;grid-row:2;min-width:0;overflow:auto;padding:18px 20px 26px}.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.page-head h1{margin:0;font-size:20px}.filters{display:flex;align-items:center;gap:8px}.control{height:34px;padding:0 10px;border:1px solid #d6d3d1;border-radius:10px;background:#fff;outline:0}.btn{height:34px;padding:0 14px;border:1px solid #d6d3d1;border-radius:10px;background:#fff;color:#57534e}.btn.primary{color:#fff;border-color:var(--orange);background:linear-gradient(135deg,#fb923c,var(--orange))}
+    .money-hero{position:relative;overflow:hidden;min-height:190px;padding:25px 28px;margin-bottom:14px;border-radius:26px;background:radial-gradient(circle at 88% 15%,rgba(251,146,60,.2),transparent 30%),radial-gradient(circle at 5% 110%,rgba(253,186,116,.32),transparent 34%),linear-gradient(145deg,rgba(255,255,255,.98),rgba(255,247,237,.9));border:1px solid rgba(255,255,255,.95);box-shadow:0 18px 42px rgba(120,53,15,.1);backdrop-filter:blur(22px)}.money-hero:after{content:"";position:absolute;right:-40px;bottom:-78px;width:230px;height:230px;border-radius:50%;border:35px solid rgba(234,88,12,.06)}.hero-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between}.hero-label{color:#57534e;font-size:14px}.live{display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border:1px solid rgba(234,88,12,.1);border-radius:999px;background:rgba(255,255,255,.72);color:var(--orange-dark);font-size:12px}.dot{width:7px;height:7px;border-radius:50%;background:var(--orange);box-shadow:0 0 0 5px rgba(234,88,12,.1)}.money-main{position:relative;z-index:1;margin-top:15px}.money-main strong{display:block;color:var(--red);font-size:44px;line-height:1.1;letter-spacing:-1.2px;font-variant-numeric:tabular-nums}.money-main span{display:block;margin-top:8px;color:var(--sub);font-size:12px}.hero-foot{position:relative;z-index:1;display:flex;align-items:flex-end;justify-content:space-between;margin-top:22px}.selected-money{display:flex;align-items:baseline;gap:10px}.selected-money span{color:var(--sub);font-size:13px}.selected-money strong{color:var(--red);font-size:20px;font-variant-numeric:tabular-nums}.selected-money strong.zero{color:var(--muted)}.money-rule{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.72);color:var(--sub);font-size:12px}.money-rule b{color:var(--red);font-weight:650}.money-rule i{display:inline-block;width:7px;height:7px;margin:0 4px 0 9px;border-radius:50%;background:#a8a29e}
+    .dashboard-grid{display:grid;grid-template-columns:minmax(720px,1.65fr) minmax(310px,.72fr);gap:14px}.panel{border:1px solid var(--line);border-radius:20px;background:#fff;box-shadow:0 6px 20px rgba(68,64,60,.05)}.calendar-panel{padding:16px}.panel-head{display:grid;grid-template-columns:minmax(220px,1fr) auto minmax(170px,1fr);align-items:center;gap:14px;margin-bottom:15px}.panel-head h2{margin:0 0 7px;font-size:16px}.panel-context .filters{justify-content:flex-start}.period-tabs{display:flex;padding:3px;border-radius:12px;background:#f5f5f4}.period-tab{min-width:46px;height:30px;padding:0 13px;border:0;border-radius:9px;background:transparent;color:#78716c}.period-tab.active{background:#fff;color:var(--orange-dark);font-weight:700;box-shadow:0 3px 9px rgba(68,64,60,.09)}.range-box{display:block;text-align:right}.range-box span{display:block;margin-bottom:4px;color:#a8a29e;font-size:11px}.range-select{min-width:154px;height:34px;padding:0 30px 0 10px;border:1px solid #d6d3d1;border-radius:10px;background:#fff;color:#57534e;outline:0}.range-select:focus{border-color:#fb923c;box-shadow:0 0 0 3px rgba(251,146,60,.12)}.calendar-week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px;margin-bottom:7px}.calendar-week.hidden{display:none}.weekday{text-align:center;color:var(--sub);font-size:12px}.weekday.sunday{color:var(--orange)}.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}.calendar-grid.period-mode{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.day-card,.period-card{position:relative;min-height:76px;padding:10px;border:1px solid transparent;border-radius:15px;text-align:left;transition:.18s;overflow:hidden}.day-card:hover,.period-card:hover{transform:translateY(-2px);box-shadow:0 8px 17px rgba(120,53,15,.08)}.day-card.empty{border-color:transparent;background:transparent;box-shadow:none;pointer-events:none}.day-card.has-money,.period-card.has-money{border-color:#fed7aa;background:#fff3e8}.day-card.no-money,.period-card.no-money,.day-card.pending,.period-card.pending{border-color:#e7e5e4;background:#f5f5f4}.day-card.selected,.period-card.selected{border-color:#fb923c;box-shadow:0 0 0 2px rgba(249,115,22,.13)}.day-card .date,.period-card .date{display:flex;align-items:center;justify-content:space-between;color:#78716c;font-size:12px}.day-card .date b,.period-card .date b{font-size:13px;color:#57534e}.day-card .amount,.period-card .amount{display:block;margin-top:15px;color:var(--orange);font-size:17px;font-weight:750;font-variant-numeric:tabular-nums;white-space:nowrap}.day-card.no-money .amount,.period-card.no-money .amount{color:#44403c}.day-card.pending .amount,.period-card.pending .amount{color:#78716c}.day-card .tag{padding:1px 5px;border-radius:999px;background:#ffedd5;color:#c2410c;font-size:9px}
+    .ai-desc{margin:0;color:var(--sub);font-size:12px}.detail-panel{min-height:100%;padding:18px;background:linear-gradient(155deg,#fff,#fffaf5)}.detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.detail-head h2{margin:0;font-size:17px}.detail-date{padding:4px 9px;border-radius:999px;background:#f5f5f4;color:#57534e;font-size:11px}.detail-total{margin:18px 0;padding:16px;border:1px solid #fed7aa;border-radius:16px;background:#fff3e8}.detail-total span{display:block;color:#9a3412;font-size:12px}.detail-total strong{display:block;margin-top:6px;color:var(--orange);font-size:28px;font-variant-numeric:tabular-nums}.type-list{display:grid;gap:9px}.type-item{padding:12px;border:1px solid #eeeae6;border-radius:14px;background:rgba(255,255,255,.82)}.type-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.type-name{font-weight:700}.type-amount{color:var(--orange);font-weight:700;font-variant-numeric:tabular-nums}.type-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.type-tag{padding:2px 7px;border-radius:999px;background:#f5f5f4;color:#78716c;font-size:10px}.detail-empty{padding:24px;text-align:center;color:#a8a29e}.tip{margin-top:12px;color:#a8a29e;font-size:11px;text-align:center}.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,18px);opacity:0;padding:9px 15px;border-radius:999px;background:#292524;color:#fff;transition:.2s;z-index:20}.toast.show{opacity:1;transform:translate(-50%,0)}
+    @media(max-width:1200px){.dashboard-grid{grid-template-columns:1fr}.ai-stage{min-height:220px}}@media(max-width:850px){.app{grid-template-columns:1fr}.topbar{grid-column:1}.brand{width:auto;border:0}.crumb,.sidebar{display:none}.main{grid-column:1;padding:12px}.page-head{align-items:flex-start;gap:10px}.filters{flex-wrap:wrap}.dashboard-grid{display:block}.ai-panel{margin-top:12px}.calendar-panel{overflow:auto}.calendar-week,.calendar-grid{min-width:700px}.money-main strong{font-size:36px}}
+  </style>
+  <link rel="stylesheet" href="../rh-design-v3.css" />
+  <style>
+    body{background:radial-gradient(circle at 18% 0,rgba(255,237,213,.72),transparent 31%),linear-gradient(180deg,#faf9f7 0,#f4f2ef 100%) !important}
+    .main{padding:22px 24px 30px !important}
+    .panel{border:1px solid rgba(255,255,255,.82) !important;border-radius:24px !important;background:rgba(255,255,255,.76) !important;box-shadow:0 18px 46px rgba(91,72,57,.08),inset 0 1px 0 rgba(255,255,255,.9) !important;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+    .calendar-panel{padding:20px !important}
+    .panel-head{margin-bottom:20px !important}
+    .panel-head h2{font-size:18px !important;letter-spacing:-.2px}
+    .period-tabs{padding:4px !important;border:1px solid rgba(231,229,228,.82);border-radius:14px !important;background:rgba(245,245,244,.82) !important;box-shadow:inset 0 1px 3px rgba(68,64,60,.04)}
+    .period-tab{height:34px !important;border-radius:10px !important}
+    .period-tab.active{color:#c2410c !important;background:rgba(255,255,255,.96) !important;box-shadow:0 5px 14px rgba(120,53,15,.1) !important}
+    .range-select{height:38px !important;border-color:rgba(214,211,209,.8) !important;border-radius:12px !important;background:rgba(255,255,255,.82) !important;box-shadow:0 4px 12px rgba(68,64,60,.05)}
+    .calendar-week{gap:10px !important;margin-bottom:10px !important}
+    .weekday{font-size:11px !important;font-weight:600;letter-spacing:.5px}
+    .calendar-grid,.calendar-grid.period-mode{grid-template-columns:repeat(7,minmax(0,1fr)) !important;gap:10px !important}
+    .day-card,.period-card{display:flex !important;flex-direction:column;justify-content:space-between;height:82px !important;min-height:82px !important;max-height:82px !important;padding:10px 11px !important;border-radius:16px !important;isolation:isolate;overflow:hidden !important;box-shadow:0 8px 22px rgba(68,64,60,.06),inset 0 1px 0 rgba(255,255,255,.88) !important;backdrop-filter:blur(14px) !important;-webkit-backdrop-filter:blur(14px) !important}
+    .day-card::before,.period-card::before{content:"";position:absolute;z-index:-1;right:-22px;bottom:-32px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.34);filter:blur(1px)}
+    .day-card.has-money,.period-card.has-money{border-color:rgba(253,186,116,.58) !important;background:linear-gradient(145deg,rgba(255,247,237,.98),rgba(255,237,213,.9)) !important}
+    .day-card.no-money,.period-card.no-money{border-color:rgba(231,229,228,.82) !important;background:linear-gradient(145deg,rgba(250,250,249,.97),rgba(241,240,238,.92)) !important}
+    .day-card .date,.period-card .date{flex:0 0 auto;min-width:0;color:#8c827b !important;font-size:11px !important;line-height:1.35;letter-spacing:.1px}
+    .day-card .date b,.period-card .date b{color:#57534e !important;font-size:12px !important;font-weight:650}
+    .day-card .amount,.period-card .amount{flex:0 0 auto;margin-top:6px !important;overflow:hidden;text-overflow:ellipsis;font-size:17px !important;font-weight:760 !important;line-height:1.2;letter-spacing:-.35px}
+    .period-card .date{min-height:30px}.period-card .date b{display:-webkit-box;min-width:0;overflow:hidden;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.3;overflow-wrap:anywhere}.period-card .date>span{flex:0 0 auto;margin-left:4px;font-size:9px;white-space:nowrap}
+    .day-card.has-money .amount,.period-card.has-money .amount{color:#e85d04 !important;text-shadow:0 1px 0 rgba(255,255,255,.7)}
+    .day-card.no-money .amount,.period-card.no-money .amount{color:#57534e !important}
+    .day-card:hover,.period-card:hover{transform:translateY(-3px) scale(1.01) !important;box-shadow:0 14px 30px rgba(120,53,15,.12),inset 0 1px 0 rgba(255,255,255,.94) !important}
+    .day-card.empty{border-color:transparent !important;background:transparent !important;box-shadow:none !important;backdrop-filter:none !important}
+    .day-card.selected,.period-card.selected{border-color:#fb923c !important;box-shadow:0 0 0 3px rgba(251,146,60,.14),0 16px 34px rgba(120,53,15,.13),inset 0 1px 0 rgba(255,255,255,.94) !important}
+    .day-card .tag{padding:2px 7px !important;border-radius:999px !important;background:rgba(255,255,255,.66) !important;color:#c2410c !important;box-shadow:0 2px 8px rgba(120,53,15,.06)}
+    .detail-panel{padding:22px !important;background:linear-gradient(155deg,rgba(255,255,255,.86),rgba(255,250,245,.78)) !important}
+    .detail-panel{display:flex;flex-direction:column;min-height:0;height:100%;gap:14px}
+    .detail-section{flex:2 1 0;min-height:0;overflow:auto;padding:0 2px 2px}
+    .ai-section{flex:1 1 0;min-height:0;display:flex;flex-direction:column;overflow:hidden;padding:14px;border:1px solid rgba(238,234,230,.78);border-radius:18px;background:rgba(255,255,255,.58)}
+    .ai-section .ai-card-head{flex:0 0 auto}
+    .ai-section .ai-scope{flex:0 0 auto;margin:8px 0;padding:8px 10px}
+    .ai-section .ai-state{flex:1 1 auto;min-height:48px;overflow:auto;padding:8px}
+    .ai-section .ai-placeholder,.ai-section .ai-loading{height:100%;min-height:48px}
+    .ai-section .ai-button{flex:0 0 36px;height:36px;margin-top:8px}
+    .ai-section>.tip{flex:0 0 auto;margin-top:6px}
+    .detail-date{border:1px solid rgba(231,229,228,.74);background:rgba(255,255,255,.7) !important;box-shadow:0 4px 12px rgba(68,64,60,.05)}
+    .detail-total{padding:18px !important;border-color:rgba(253,186,116,.5) !important;border-radius:19px !important;background:linear-gradient(145deg,rgba(255,247,237,.98),rgba(255,237,213,.86)) !important;box-shadow:0 12px 28px rgba(120,53,15,.08),inset 0 1px 0 rgba(255,255,255,.8)}
+    .type-list{gap:10px !important}
+    .type-item{padding:14px !important;border-color:rgba(238,234,230,.78) !important;border-radius:16px !important;background:rgba(255,255,255,.68) !important;box-shadow:0 7px 18px rgba(68,64,60,.045),inset 0 1px 0 rgba(255,255,255,.86);backdrop-filter:blur(12px)}
+    .type-tag{background:#f3f1ef !important}
+    .ai-card-head{display:flex;align-items:center;gap:10px}.ai-mark{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#fb923c,#ea580c);font-weight:800;box-shadow:0 8px 18px rgba(234,88,12,.2)}.ai-card-head h2{margin:0;font-size:17px}
+    .ai-scope{margin:14px 0;padding:11px 12px;border:1px solid rgba(253,186,116,.4);border-radius:14px;background:rgba(255,247,237,.76);color:#9a3412;font-size:12px}
+    .ai-state{min-height:0;padding:14px;border:1px solid rgba(238,234,230,.78);border-radius:17px;background:rgba(255,255,255,.58)}
+    .ai-placeholder{height:100%;min-height:48px;display:grid;place-items:center;text-align:center;color:#a8a29e}.ai-placeholder strong{display:block;margin-bottom:5px;color:#57534e}
+    .ai-loading{height:100%;min-height:48px;display:none;place-items:center;text-align:center;color:#78716c}.ai-spinner{width:32px;height:32px;margin:0 auto 6px;border:3px solid #ffedd5;border-top-color:#f97316;border-radius:50%;animation:spin .9s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .ai-result{display:none}.ai-result-title{margin-bottom:10px;font-weight:750}.ai-finding{padding:11px 0;border-bottom:1px solid #eeeae6}.ai-finding:last-child{border-bottom:0}.ai-finding b{display:block;margin-bottom:3px;color:#44403c;font-size:12px}.ai-finding p{margin:0;color:#78716c;font-size:12px}
+    .ai-button{width:100%;height:40px;margin-top:12px;border:0;border-radius:13px;color:#fff;background:linear-gradient(135deg,#fb923c,#ea580c);font-weight:700;box-shadow:0 9px 20px rgba(234,88,12,.18)}
+    .insight-grid{display:grid;grid-template-columns:1.45fr .85fr .85fr;gap:14px;margin-top:14px}.insight-panel{padding:18px !important}.insight-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}.insight-head h3{margin:0;font-size:15px}.insight-head span{color:#a8a29e;font-size:11px}.trend-chart{height:150px;display:flex;align-items:flex-end;gap:7px;padding-top:12px;border-bottom:1px solid #e7e5e4}.trend-column{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}.trend-value{margin-bottom:5px;color:#9a3412;font-size:9px;white-space:nowrap}.trend-bar{width:100%;max-width:28px;min-height:3px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,#fb923c,#fdba74);box-shadow:0 5px 12px rgba(234,88,12,.16)}.trend-bar.zero{background:#d6d3d1;box-shadow:none}.trend-label{margin-top:6px;color:#a8a29e;font-size:9px;white-space:nowrap}
+    .structure-list{display:grid;gap:13px}.structure-top{display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px}.structure-top b{font-weight:650}.structure-top span{color:#78716c}.structure-track{height:7px;border-radius:999px;background:#eeeae6;overflow:hidden}.structure-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#fdba74,#f97316)}
+    .alert-list{display:grid;gap:9px}.alert-item{padding:11px 12px;border-radius:14px;background:rgba(245,245,244,.82)}.alert-item.attention{background:#fff3e8}.alert-item b{display:block;margin-bottom:3px;font-size:12px}.alert-item span{color:#78716c;font-size:11px}.alert-item.attention b{color:#c2410c}
+    @media(max-width:1200px){.insight-grid{grid-template-columns:1fr 1fr}.insight-panel:first-child{grid-column:1/3}}
+    @media(max-width:850px){.insight-grid{grid-template-columns:1fr}.insight-panel:first-child{grid-column:auto}}
+  </style>
+  <script src="../rh-design-v3.js" defer></script>
+</head>
+<body>
+<div class="app">
+  <header class="topbar"><div class="brand"><div class="brand-mark">融</div><span>融辉物流 TMS</span></div><div class="top-actions"><div class="crumb">网点返利 / <strong>返利看板</strong></div><div class="user"><span>◇</span><div class="avatar">李</div><span>李未</span><span>⌄</span></div></div></header>
+  <aside class="sidebar"><div class="menu-title">网点返利</div><a class="menu-item" href="../政策管理/index.html"><span class="menu-icon">⇧</span>政策导入</a><a class="menu-item" href="../每日返利/index.html"><span class="menu-icon">◷</span>返利管理</a><a class="menu-item active" href="../返利看板/index.html"><span class="menu-icon">◇</span>返利看板</a></aside>
+  <main class="main">
+    <section class="dashboard-grid">
+      <div class="panel calendar-panel">
+        <div class="panel-head"><div class="panel-context"><h2 id="calendarTitle">安龙站每日返利</h2><div class="ai-desc" id="periodDesc">每天金额为该网点下所有参与返利类型的返利合计</div></div><div class="period-tabs"><button class="period-tab active" data-view="日">日</button><button class="period-tab" data-view="周">周</button><button class="period-tab" data-view="月">月</button><button class="period-tab" data-view="年">年</button></div><label class="range-box"><span>整体时间范围</span><select class="range-select" id="timeRange"></select></label></div>
+        <div class="calendar-week hidden" id="calendarWeek"><div class="weekday">周一</div><div class="weekday">周二</div><div class="weekday">周三</div><div class="weekday">周四</div><div class="weekday">周五</div><div class="weekday">周六</div><div class="weekday sunday">周日</div></div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+      <aside class="panel detail-panel">
+        <section class="detail-section" id="detailView">
+          <div class="detail-head"><div><h2>返利详情</h2><p class="ai-desc">查看所选日期各类型的返利汇总</p></div><span class="detail-date" id="detailDate">2026年9月18日</span></div>
+          <div class="detail-total"><span>当日返利合计</span><strong id="detailTotal">¥0.00</strong></div>
+          <div class="type-list" id="detailTypes"></div>
+          <div class="tip">仅展示类型汇总，不展示运单和具体返利明细</div>
+        </section>
+        <section class="ai-section" id="aiView">
+          <div class="ai-card-head"><div class="ai-mark">AI</div><div><h2>AI返利分析</h2><p class="ai-desc">基于当前页面数据生成经营解释</p></div></div>
+          <div class="ai-scope" id="aiScope">安龙站 · 2026年9月 · 日返利</div>
+          <div class="ai-state"><div class="ai-placeholder" id="aiPlaceholder"><div><strong>分析当前返利表现</strong><span>识别高返利、零返利和趋势变化</span></div></div><div class="ai-loading" id="aiLoading"><div><div class="ai-spinner"></div><strong>AI正在分析</strong><div class="tip">正在读取当前时间范围内的返利汇总</div></div></div><div class="ai-result" id="aiResult"></div></div>
+          <button class="ai-button" id="aiAnalyze">开始AI分析</button>
+          <div class="tip">AI只提供经营解释，返利金额仍以系统计算结果为准</div>
+        </section>
+      </aside>
+    </section>
+    <section class="insight-grid">
+      <article class="panel insight-panel"><div class="insight-head"><div><h3>返利趋势</h3><span id="trendScope">2026年9月每日返利</span></div><span id="trendSummary">自动汇总</span></div><div class="trend-chart" id="trendChart"></div></article>
+      <article class="panel insight-panel"><div class="insight-head"><div><h3>返利类型结构</h3><span>当前时间范围</span></div><span id="structureTotal">¥0.00</span></div><div class="structure-list" id="structureList"></div></article>
+      <article class="panel insight-panel"><div class="insight-head"><div><h3>经营提醒</h3><span>系统规则识别</span></div><span id="alertCount">0项</span></div><div class="alert-list" id="alertList"></div></article>
+    </section>
+  </main>
+</div>
+<div id="toast" class="toast">已更新看板</div>
+<script>
+  const siteProfiles={
+    '安龙站':{factor:1,seed:7},
+    '安顺商贸城S站':{factor:.82,seed:13},
+    '贵阳花溪S站':{factor:.68,seed:19}
+  };
+  const fixedSite='安龙站';
+  function isAvailable(year,month,day){
+    if(year<2026)return true;
+    if(year>2026||month>9)return false;
+    return month<9||day<=18;
+  }
+  function buildDailyData(site,year,month){
+    const profile=siteProfiles[site];
+    const days=new Date(year,month,0).getDate();
+    return Array.from({length:days},(_,index)=>index+1).map(day=>{
+      if(!isAvailable(year,month,day))return{day,weight:0,amount:0,future:true};
+      const weekday=new Date(year,month-1,day).getDay();
+      const swing=((day*337+month*211+profile.seed*97)%2600)-900;
+      const sundayFactor=weekday===0?.78:1;
+      const weight=Math.max(2200,Math.round((5100+swing)*profile.factor*sundayFactor*100)/100);
+      const base=4100*profile.factor;
+      const forcedZero=(day+month+profile.seed)%11===0;
+      const amount=forcedZero||weight<=base?0:Math.round((weight-base)*(4.1+((day+month)%4)*.65)*100)/100;
+      return{day,weight,amount};
+    });
+  }
+  function getMonthSummary(site,year,month){
+    const data=buildDailyData(site,year,month);
+    const summary=data.reduce((result,item)=>({amount:result.amount+item.amount,weight:result.weight+item.weight}),{amount:0,weight:0});
+    return{...summary,pending:false,future:data.every(item=>item.future)};
+  }
+  function getYearSummary(site,year){
+    const months=Array.from({length:12},(_,index)=>getMonthSummary(site,year,index+1)).filter(item=>!item.pending);
+    return months.reduce((result,item)=>({amount:result.amount+item.amount,weight:result.weight+item.weight}),{amount:0,weight:0});
+  }
+  let dailyData=buildDailyData(fixedSite,2026,9);
+  const calendar=document.querySelector('#calendarGrid');
+  const calendarWeek=document.querySelector('#calendarWeek');
+  const formatter=new Intl.NumberFormat('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  let currentView='日';
+  const selectedRanges={日:'2026年9月',周:'2026年9月',月:'2026年',年:'返利以来'};
+  const typeConfig=[
+    {name:'融速达',ratio:.34,tags:['轻泡','重泡','重货']},
+    {name:'精准零担',ratio:.29,tags:['轻泡','重泡','重货']},
+    {name:'融汇达',ratio:.22,tags:['轻泡','重泡']},
+    {name:'融安达',ratio:.15,tags:['重泡','重货']}
+  ];
+  let currentAnalysisItems=[];
+  let currentAnalysisScope='';
+  function setRangeOptions(options,selected){
+    const control=document.querySelector('#timeRange');
+    control.innerHTML=options.map(option=>`<option${option===selected?' selected':''}>${option}</option>`).join('');
+  }
+  function renderCalendar(year=2026,month=9,selectedDay=18){
+    calendar.innerHTML='';
+    calendar.classList.remove('period-mode');
+    calendarWeek.classList.remove('hidden');
+    const firstDayOffset=(new Date(year,month-1,1).getDay()+6)%7;
+    const daysInMonth=new Date(year,month,0).getDate();
+    for(let i=0;i<firstDayOffset;i++){const blank=document.createElement('div');blank.className='day-card empty';calendar.appendChild(blank)}
+    for(let day=1;day<=daysInMonth;day++){
+      const data=dailyData.find(item=>item.day===day);
+      const column=(firstDayOffset+day-1)%7;
+      const isSunday=column===6;
+      const button=document.createElement('button');
+      button.className=`day-card ${data.amount>0?'has-money':'no-money'}${day===selectedDay?' selected':''}`;
+      button.type='button';
+      const amount=`¥${formatter.format(data.amount)}`;
+      const amountClass=data.amount>0?'':'zero';
+      button.innerHTML=`<span class="date"><b>${day}日</b>${isSunday?'<span class="tag">周日</span>':''}</span><strong class="amount ${amountClass}">${amount}</strong>`;
+      button.onclick=()=>{
+        document.querySelectorAll('.day-card.selected').forEach(item=>item.classList.remove('selected'));
+        button.classList.add('selected');
+        renderDetail(year,month,day,data.amount);
+      };
+      calendar.appendChild(button);
+    }
+    const selected=dailyData.find(item=>item.day===selectedDay)||dailyData[0];
+    renderDetail(year,month,selected.day,selected.amount);
+  }
+  function sumDays(days){const rows=dailyData.filter(item=>days.includes(item.day));const summary=rows.reduce((result,item)=>({amount:result.amount+item.amount,weight:result.weight+item.weight}),{amount:0,weight:0});return{...summary,future:rows.every(item=>item.future)}}
+  function getMonth(value){const match=value.match(/(\d{4})年(\d{1,2})月/);return match?{year:Number(match[1]),month:Number(match[2])}:{year:2026,month:9}}
+  function formatDate(date){return `${date.getMonth()+1}月${date.getDate()}日`}
+  function getWeekGroups(year,month){
+    const first=new Date(year,month-1,1);
+    const last=new Date(year,month,0);
+    const cursor=new Date(first);
+    cursor.setDate(first.getDate()-((first.getDay()+6)%7));
+    const groups=[];
+    while(cursor<=last){
+      const start=new Date(cursor);
+      const end=new Date(cursor);end.setDate(end.getDate()+6);
+      const days=[];
+      for(let date=new Date(start);date<=end;date.setDate(date.getDate()+1)){if(date.getFullYear()===year&&date.getMonth()===month-1)days.push(date.getDate())}
+      groups.push({label:`${formatDate(start)}—${formatDate(end)}`,days});
+      cursor.setDate(cursor.getDate()+7);
+    }
+    return groups;
+  }
+  function renderPeriodCards(items){
+    calendar.innerHTML='';
+    calendar.classList.add('period-mode');
+    calendarWeek.classList.add('hidden');
+    items.forEach((item,index)=>{
+      const button=document.createElement('button');
+      const state=item.amount>0?'has-money':'no-money';
+      button.className=`period-card ${state}${index===0?' selected':''}`;
+      button.type='button';
+      button.innerHTML=`<span class="date"><b>${item.label}</b><span>${item.note||''}</span></span><strong class="amount">¥${formatter.format(item.amount)}</strong>`;
+      button.onclick=()=>{document.querySelectorAll('.period-card.selected').forEach(card=>card.classList.remove('selected'));button.classList.add('selected')};
+      calendar.appendChild(button);
+    });
+  }
+  function renderDetail(year,month,day,total){
+    let allocated=0;
+    const rows=typeConfig.map((type,index)=>{
+      const amount=index===typeConfig.length-1?Math.max(0,Math.round((total-allocated)*100)/100):Math.round(total*type.ratio*100)/100;
+      allocated+=amount;
+      return{...type,amount};
+    });
+    document.querySelector('#detailDate').textContent=`${year}年${month}月${day}日`;
+    document.querySelector('#detailTotal').textContent=`¥${formatter.format(total)}`;
+    document.querySelector('#detailTypes').innerHTML=rows.map(item=>`<div class="type-item"><div class="type-row"><span class="type-name">${item.name}</span><span class="type-amount">¥${formatter.format(item.amount)}</span></div><div class="type-tags">${item.tags.map(tag=>`<span class="type-tag">${tag}</span>`).join('')}</div></div>`).join('');
+  }
+  function resetAI(){
+    document.querySelector('#aiPlaceholder').style.display='grid';
+    document.querySelector('#aiLoading').style.display='none';
+    document.querySelector('#aiResult').style.display='none';
+    document.querySelector('#aiAnalyze').disabled=false;
+    document.querySelector('#aiAnalyze').textContent='开始AI分析';
+  }
+  function renderInsights(scope,items){
+    const valid=items.filter(item=>!item.future);
+    currentAnalysisItems=valid;
+    currentAnalysisScope=scope;
+    document.querySelector('#aiScope').textContent=`${fixedSite} · ${scope}`;
+    resetAI();
+    const total=valid.reduce((sum,item)=>sum+item.amount,0);
+    const average=valid.length?total/valid.length:0;
+    const max=Math.max(1,...valid.map(item=>item.amount));
+    const chartItems=valid.slice(-14);
+    document.querySelector('#trendScope').textContent=scope;
+    document.querySelector('#trendSummary').textContent=`合计 ¥${formatter.format(total)}`;
+    document.querySelector('#trendChart').innerHTML=chartItems.map(item=>`<div class="trend-column"><span class="trend-value">${item.amount?Math.round(item.amount/100)/10+'k':'0'}</span><span class="trend-bar${item.amount===0?' zero':''}" style="height:${Math.max(3,item.amount/max*105)}px"></span><span class="trend-label">${item.label}</span></div>`).join('');
+    document.querySelector('#structureTotal').textContent=`¥${formatter.format(total)}`;
+    document.querySelector('#structureList').innerHTML=typeConfig.map(item=>`<div><div class="structure-top"><b>${item.name}</b><span>${Math.round(item.ratio*100)}% · ¥${formatter.format(total*item.ratio)}</span></div><div class="structure-track"><div class="structure-fill" style="width:${item.ratio*100}%"></div></div></div>`).join('');
+    const zeroCount=valid.filter(item=>item.amount===0).length;
+    const top=valid.reduce((best,item)=>!best||item.amount>best.amount?item:best,null);
+    const midpoint=Math.max(1,Math.floor(valid.length/2));
+    const firstAvg=valid.slice(0,midpoint).reduce((sum,item)=>sum+item.amount,0)/midpoint;
+    const lastRows=valid.slice(midpoint);
+    const lastAvg=lastRows.length?lastRows.reduce((sum,item)=>sum+item.amount,0)/lastRows.length:average;
+    const direction=lastAvg>=firstAvg?'上升':'下降';
+    const rate=firstAvg?Math.abs((lastAvg-firstAvg)/firstAvg*100):0;
+    const alerts=[
+      {attention:zeroCount>0,title:`${zeroCount}个周期返利为0`,text:'建议核查货量是否达到基准以及始发有效扫描情况。'},
+      {attention:false,title:`最高返利出现在${top?.label||'—'}`,text:top?`该周期返利为 ¥${formatter.format(top.amount)}。`:'当前范围暂无可分析数据。'},
+      {attention:direction==='下降',title:`后半段均值${direction}${rate.toFixed(1)}%`,text:`当前周期平均返利为 ¥${formatter.format(average)}。`}
+    ];
+    document.querySelector('#alertCount').textContent=`${alerts.length}项`;
+    document.querySelector('#alertList').innerHTML=alerts.map(item=>`<div class="alert-item${item.attention?' attention':''}"><b>${item.title}</b><span>${item.text}</span></div>`).join('');
+  }
+  function buildAIResult(){
+    const items=currentAnalysisItems;
+    const total=items.reduce((sum,item)=>sum+item.amount,0);
+    const average=items.length?total/items.length:0;
+    const top=items.reduce((best,item)=>!best||item.amount>best.amount?item:best,null);
+    const zeroItems=items.filter(item=>item.amount===0);
+    const nonZero=items.filter(item=>item.amount>0);
+    const low=nonZero.reduce((best,item)=>!best||item.amount<best.amount?item:best,null);
+    document.querySelector('#aiResult').innerHTML=`<div class="ai-result-title">${currentAnalysisScope}分析结果</div><div class="ai-finding"><b>整体表现</b><p>累计返利 ¥${formatter.format(total)}，已统计${items.length}个周期，平均每周期 ¥${formatter.format(average)}。</p></div><div class="ai-finding"><b>高返利时段</b><p>${top?`${top.label}返利最高，为 ¥${formatter.format(top.amount)}，可结合产品和货物类型结构复盘货量来源。`:'当前暂无有效数据。'}</p></div><div class="ai-finding"><b>需关注时段</b><p>${zeroItems.length?`${zeroItems.map(item=>item.label).slice(0,4).join('、')}等${zeroItems.length}个周期返利为0，建议核查货量、政策命中和扫描完整性。`:low?`${low.label}为非零返利最低点，金额 ¥${formatter.format(low.amount)}。`:'未发现明显低返利时段。'}</p></div><div class="ai-finding"><b>建议动作</b><p>优先核查零返利日期，再对高返利日期的产品类型和货物类型结构进行对比。AI结论仅作经营参考。</p></div>`;
+  }
+  function renderView(view){
+    currentView=view;
+    document.querySelectorAll('.period-tab').forEach(button=>button.classList.toggle('active',button.dataset.view===view));
+    const site=fixedSite;
+    if(view==='日'){
+      const range=selectedRanges.日;
+      const {year,month}=getMonth(range);
+      dailyData=buildDailyData(site,year,month);
+      document.querySelector('#calendarTitle').textContent=`${site}每日返利`;
+      document.querySelector('#periodDesc').textContent='每天金额为该网点下所有参与返利类型的返利合计';
+      setRangeOptions(['2026年9月','2026年8月','2026年7月'],range);
+      renderCalendar(year,month);
+      renderInsights(`${range} · 日返利`,dailyData.map(item=>({...item,label:`${item.day}日`})));
+      return;
+    }
+    if(view==='周'){
+      const range=selectedRanges.周;
+      const {year,month}=getMonth(range);
+      dailyData=buildDailyData(site,year,month);
+      document.querySelector('#calendarTitle').textContent=`${site}每周返利`;
+      document.querySelector('#periodDesc').textContent='每周金额为该网点下所有参与返利类型的返利合计';
+      setRangeOptions(['2026年9月','2026年8月','2026年7月'],range);
+      const groups=getWeekGroups(year,month);
+      const weekItems=groups.map(group=>({...group,...sumDays(group.days)}));
+      renderPeriodCards(weekItems);
+      renderInsights(`${range} · 周返利`,weekItems);
+      return;
+    }
+    if(view==='月'){
+      const range=selectedRanges.月;
+      const year=Number(range.replace('年',''));
+      document.querySelector('#calendarTitle').textContent=`${site}每月返利`;
+      document.querySelector('#periodDesc').textContent='每月金额为该网点下所有参与返利类型的返利合计';
+      setRangeOptions(['2026年','2025年','2024年'],range);
+      const monthItems=Array.from({length:12},(_,index)=>({label:`${index+1}月`,cardLabel:`${year}年${index+1}月`,...getMonthSummary(site,year,index+1)}));
+      renderPeriodCards(monthItems.map(item=>({...item,label:item.cardLabel})));
+      renderInsights(`${range} · 月返利`,monthItems);
+      return;
+    }
+    document.querySelector('#calendarTitle').textContent=`${site}每年返利`;
+    document.querySelector('#periodDesc').textContent='每年金额为该网点下所有参与返利类型的返利合计';
+    const range=selectedRanges.年;
+    setRangeOptions(['返利以来','近3年','近5年'],range);
+    const startYear=range==='近5年'?2022:2024;
+    const yearItems=Array.from({length:2026-startYear+1},(_,index)=>{const year=startYear+index;return{label:`${year}年`,...getYearSummary(site,year),note:year===2026?'截至9月':''}});
+    renderPeriodCards(yearItems);
+    renderInsights(`${range} · 年返利`,yearItems);
+  }
+  document.querySelectorAll('.period-tab').forEach(button=>button.onclick=()=>renderView(button.dataset.view));
+  document.querySelector('#timeRange').onchange=event=>{selectedRanges[currentView]=event.target.value;renderView(currentView);showToast(`已切换至${event.target.value}`)};
+  renderView('日');
+  document.querySelector('#aiAnalyze').onclick=()=>{
+    const button=document.querySelector('#aiAnalyze');
+    document.querySelector('#aiPlaceholder').style.display='none';
+    document.querySelector('#aiResult').style.display='none';
+    document.querySelector('#aiLoading').style.display='grid';
+    button.disabled=true;
+    button.textContent='AI分析中…';
+    setTimeout(()=>{buildAIResult();document.querySelector('#aiLoading').style.display='none';document.querySelector('#aiResult').style.display='block';button.disabled=false;button.textContent='重新分析'},1200);
+  };
+  function showToast(text){const toast=document.querySelector('#toast');toast.textContent=text;toast.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>toast.classList.remove('show'),2400)}
+</script>
+</body>
+</html>
