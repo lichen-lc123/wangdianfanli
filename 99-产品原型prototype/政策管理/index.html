@@ -371,8 +371,8 @@
   <aside id="problemPoolDrawer" class="drawer" aria-hidden="true">
     <div class="drawer-head"><div><h2>导入问题数据</h2><div id="problemPoolSubtitle" class="muted"></div></div><button class="icon-btn close-layer" aria-label="关闭">×</button></div>
     <div class="drawer-body">
-      <div class="notice" style="margin-bottom:14px">展示当前导入批次中全部未成功导入的Excel数据。可在线修改、删除，也可批量下载后修正并二次导入。</div>
-      <div class="problem-pool-toolbar"><div class="problem-pool-toolbar-left"><span id="problemPoolCount" class="muted"></span><span id="problemSelectedCount" class="selection-count">已选 0 条</span></div><div class="problem-pool-toolbar-right"><button id="downloadSelectedProblems" class="btn" type="button" disabled>下载选中问题数据</button><button id="downloadAllProblems" class="btn" type="button">下载全部问题数据</button></div></div>
+      <div class="notice" style="margin-bottom:14px">展示当前导入批次中未成功导入的数据。可在线修改、删除，也可下载后二次导入；修正后支持行内单条继续导入，或勾选多条批量继续导入。</div>
+      <div class="problem-pool-toolbar"><div class="problem-pool-toolbar-left"><span id="problemPoolCount" class="muted"></span><span id="problemSelectedCount" class="selection-count">已选 0 条</span></div><div class="problem-pool-toolbar-right"><button id="continueSelectedProblems" class="btn primary" type="button" disabled>批量继续导入</button><button id="downloadSelectedProblems" class="btn" type="button" disabled>下载选中问题数据</button><button id="downloadAllProblems" class="btn" type="button">下载全部问题数据</button></div></div>
       <div class="table-wrap problem-pool-table"><table aria-label="导入问题数据"><thead><tr><th style="width:42px"><input id="selectAllProblems" class="checkbox" type="checkbox" aria-label="全选当前批次问题数据" /></th><th>Excel行号</th><th>生效日期</th><th>寄件网点</th><th>目的流向</th><th>产品类型</th><th>货物类型</th><th>公斤段</th><th>考核周期</th><th>失败原因</th><th class="problem-status-sticky">处理状态</th><th class="problem-actions-sticky">操作</th></tr></thead><tbody id="problemPoolBody"></tbody></table></div>
     </div>
     <div class="drawer-foot"><button class="btn close-layer" type="button">关闭</button><button id="problemReimport" class="btn primary" type="button">二次导入</button></div>
